@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <link rel="stylesheet" href="../gitrecipes/static/css/style.css">
+    <title>{% block title %}Welcome{% endblock %} | GitRecipes</title>
+  </head>
+
+  <body>
+    <div class=page>
+      <nav class="navbar navbar-light bg-light mb-5">
+        <div class="container-fluid">
+          <span class="navbar-brand mb-0 h1">GitRecipes</span>
+        </div>
+      </nav>
+    {% block content%}
+    {% endblock %}
+  </body>
+
+</html>

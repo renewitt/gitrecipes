@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  {% if recipes %}
+  <div class="row">
+    <ul class="list-group list-group-flush">
+      {% for recipe in recipes %}
+      <li class="list-group-item"><a href="{{ recipe.link }}">{{ recipe.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="row">
+    <p>No recipes are available.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

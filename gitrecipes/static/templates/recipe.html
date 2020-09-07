@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1>{{ name }}</h1>
+  <br />
+  <h2>Ingredients</h2>
+  <ul>
+    {% for ingredient in ingredients %}
+    <li>{{ ingredient }}</li>
+    {% endfor %}
+  </ul>
+  <br />
+
+  <h2>Method</h2>
+  <ol>
+    {% for step in method %}
+    <li>{{ step }}</li>
+    {% endfor %}
+  </ol>
+
+  {% if notes %}
+  <br />
+  <h3>Notes</h3>
+  {% for note in notes %}
+  <p>{{ note }}</p>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}
