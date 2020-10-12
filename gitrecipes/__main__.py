@@ -1,9 +1,6 @@
 """ Main CLI entry point for gitrecipes. """
 
 import click
-import yaml
-import jinja2
-import pathlib
 
 import gitrecipes.create
 import gitrecipes.manage

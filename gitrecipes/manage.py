@@ -1,7 +1,6 @@
 """ Functionality used to manage your recipes. """
 import yaml
 import jinja2
-import shutil
 import pathlib
 import pdfkit
 
