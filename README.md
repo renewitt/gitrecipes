@@ -27,6 +27,12 @@ $ gitrecipes index
 
 <br />  
 
+## Configuration
+The CLI tools expects a directory with recipes in it. If you run `gitrecipes new-index`, a folder called `recipes` will be created in your current directory. If you have checked out the `gitrecipes` source and you want to keep your recipes separate, all the CLI commands allow you to pass in a custom directory as an option with `--directory`. If you get tired of this, you can also export an environment variable which `gitrecipes` will respect as your preferred directory.
+```
+export GITRECIPES_DIRECTORY='/home/Documents/recipes'
+```
+
 ## Future Development
 GitRecipes is a work in progress. Here are some of the features that are in development or are planned for the future.
 * Be able to search for recipes by ingredient, time to prepare or source
@@ -38,8 +44,8 @@ GitRecipes is a work in progress. Here are some of the features that are in deve
   
 ## FAQ:
 *Why yaml?*  
-YAML is both easy to machine parse, and also pretty human readable. YAML files can be easily parsed and displayed in many other formats, while also leaving you the option of being able to easily read the raw file and check the necessary ingredients while you're at the shops.
+YAML is both easy to machine parse, and also pretty human readable. YAML files can be easily parsed and displayed in many other formats, while also leaving you the option of being able to easily read the raw file and check the necessary ingredients while you're at the shop.
 <br/><br/> 
   
 ## Dependencies
-To create PDFs, you will need to install `PDFKit` in your virtual environment. `PDFKit` is already defined as a dependency for gitrecipes, but in order for it to run correctly, you will also need to install `wkhtmltopdf`. You can find instructions on how to get `wkhtmltopdf` running on your distro [here](https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf).
+To create PDFs, you will need to install `PDFKit` in your virtual environment. `PDFKit` is already defined as a dependency for gitrecipes, but in order for it to run correctly, you will also need to install `wkhtmltopdf`. You can find instructions on how to get `wkhtmltopdf` running on your distribution [here](https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf).

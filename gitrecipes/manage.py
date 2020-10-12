@@ -14,13 +14,21 @@ def _load_recipes_from_dir(directory):
     recipes = []
     for path in recipe_index.glob("*"):
         if path.suffix in ['.yaml', '.yml']:
-            contents = yaml.safe_load(path.read_text())
+            try:
+                contents = yaml.safe_load(path.read_text())
+            except yaml.parser.ParserError:
+                LOGGER.error(
+                    "There's something wrong with the YAML syntax in the %s file, skipping.",
+                    path.name)
+
             if contents is None:
-                LOGGER.error(f'It looks like {path.name} is an empty file, skipping.')
+                LOGGER.error('It looks like %s is an empty file, skipping.', path.name)
                 continue
 
             if not gitrecipes.validate.validate_recipe(contents):
-                LOGGER.error(f'Unable to properly load file {path.name}, skipping.')
+                LOGGER.error(
+                    "Recipe was not formatted in the expected way. Unable to properly load file %s, skipping.",
+                    path.name)
                 continue
 
             recipes.append(contents)
@@ -48,8 +56,8 @@ def _load_templates():
 
 def publish_print(directory):
     """ Publish all the recipes in this directory as PDFs. """
-    pdf = pathlib.Path("pdf/")
-    pdf.mkdir(parents=True, exist_ok=True)
+    pdfdir = pathlib.Path(f"{directory}/pdf/")
+    pdfdir.mkdir(parents=True, exist_ok=True)
 
     recipe_data = _load_recipes_from_dir(directory)
     j2_templates = _load_templates()
@@ -58,7 +66,7 @@ def publish_print(directory):
     # Create a list of all the recipes we're formatting so they can be easily
     # navigated through
     for recipe in recipe_data:
-        LOGGER.info(f'Working on creating a PDF for {recipe["name"]}..')
+        LOGGER.info('Working on creating a PDF for %s..', recipe["name"])
         recipe_filename = f"{recipe['name'].lower().replace(' ', '_')}"
         rendered_html = print_template.render(**recipe)
 
@@ -72,15 +80,15 @@ def publish_print(directory):
             'quiet': ''
         }
 
-        pdfkit.from_string(rendered_html, f'pdf/{recipe_filename}.pdf', options=options)
+        pdfkit.from_string(rendered_html, f'{pdfdir}/{recipe_filename}.pdf', options=options)
 
 def publish_html(directory):
     """
     Publish all the recipes in this directory as html pages with an index page to link them
     all, creating a browsable static website.
     """
-    html = pathlib.Path("html/")
-    html.mkdir(parents=True, exist_ok=True)
+    htmldir = pathlib.Path(f"{directory}/html/")
+    htmldir.mkdir(parents=True, exist_ok=True)
 
     j2_templates = _load_templates()
     recipe_template = j2_templates.get_template('recipe.html')
@@ -100,7 +108,7 @@ def publish_html(directory):
             'link': recipe_filename
         })
 
-        pathlib.Path(html / f"{recipe_filename}").write_text(recipe_template.render(**recipe))
+        pathlib.Path(htmldir / f"{recipe_filename}").write_text(recipe_template.render(**recipe))
 
     # Create the index page with links to all the recipes
-    pathlib.Path(html / f"index.html").write_text(index_template.render(recipes=recipe_index))
+    pathlib.Path(htmldir / "index.html").write_text(index_template.render(recipes=recipe_index))
