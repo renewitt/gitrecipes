@@ -14,6 +14,7 @@ def _load_recipes_from_dir(directory):
     recipes = []
     for path in recipe_index.glob("*"):
         if path.suffix in ['.yaml', '.yml']:
+
             try:
                 contents = yaml.safe_load(path.read_text())
             except yaml.parser.ParserError:
@@ -27,7 +28,7 @@ def _load_recipes_from_dir(directory):
 
             if not gitrecipes.validate.validate_recipe(contents):
                 LOGGER.error(
-                    "Recipe was not formatted in the expected way. Unable to properly load file %s, skipping.",
+                    "Recipe is not formatted as expected. Unable to process file %s, skipping.",
                     path.name)
                 continue
 

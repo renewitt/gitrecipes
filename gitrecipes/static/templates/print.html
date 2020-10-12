@@ -3,47 +3,59 @@
 
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css"
+      integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
-    <title>{% block title %}Welcome{% endblock %} | GitRecipes</title>
+    <title>{% block title %} Welcome {% endblock %} | GitRecipes</title>
     <style>
       body {
         font-family: sans-serif;
-        font-size: 0.95em;
+        font-size: 0.80em;
       }
+
       .full-width-table td {
         width: 8cm;
         text-align: center;
         border: none;
         border-color: transparent;
       }
+
       tbody {
         border: none;
         border-color: transparent;
       }
+
       tr {
         border: none;
         border-color: transparent;
       }
+
       .fake-list {
         padding-left: 0px;
         list-style-type: none;
+        font-style: italic;
+        margin-bottom: 20px;
       }
+
       p {
         margin-bottom: 15px;
       }
+
       .recipe-source {
         font-size: 1.1em;
         text-align: center;
         font-style: italic;
+        margin-top: 2px;
       }
+
       h1 {
         text-align: center;
         font-family: 'Roboto Slab', serif;
         font-size: 40px;
-        margin-bottom: 0px;
+        margin-bottom: 3px;
         color: rgb(23, 162, 184);
       }
+
       h2 {
         margin-top: 0px;
         font-style: italic;
@@ -51,34 +63,54 @@
         margin-bottom: 10px;
         color: rgb(23, 162, 184);
       }
+
+      hr.break-line {
+        border-top: 1px solid rgb(23, 162, 184);
+        width: 90%;
+        text-align: center;
+        margin: auto;
+        opacity: 1;
+      }
     </style>
   </head>
 
   <body class="page">
-    <h1 class="text-info">{{ name }}</h1>
+    <h1 class="text-info"> {{ name }} </h1>
     <p class="recipe-source text-center font-italic text-muted">
       From {{ source }}
     </p>
+    <span>
+      <hr class="break-line"/>
+    </span>
     <br />
     <div class="container">
       <table class="table table-borderless">
         <tr class="full-width-table">
+
+          {% if minutes_prep_time %}
           <td>
-              {% include 'svgs/timer-black.svg' %}
-              <br />
-              Time to Prepare: {{ minutes_prep_time }} minutes
-            </td>
-            <td>
-              {% include 'svgs/outdoor-grill.svg' %}
-              <br />
-              Time to Cook: {{ minutes_cook_time }} minutes
-            </td>
-            <td>
-              {% include 'svgs/restaurant.svg' %}
+            {% include 'svgs/timer-black.svg' %}
+            <br />
+            Time to Prepare: {{ minutes_prep_time }} minutes
+          </td>
+          {% endif %}
+
+          {% if minutes_cook_time %}
+          <td>
+            {% include 'svgs/outdoor-grill.svg' %}
+            <br />
+            Time to Cook: {{ minutes_cook_time }} minutes
+          </td>
+          {% endif %}
+
+          {% if serves %}
+          <td>
+            {% include 'svgs/restaurant.svg' %}
             </span>
             <br />
             Serves: {{ serves }} people
           </td>
+         {% endif %}
         </tr>
       </table>
       <br />
@@ -87,35 +119,77 @@
           <h2 class="font-weight-bold text-info">
             Ingredients
           </h2>
-          <ul class="fake-list">
-            {% for ingredient in ingredients %}
-            <li>{{ ingredient }}</li>
+          {% if ingredients is mapping %}
+            {% for component, items in ingredients.items() %}
+              <strong>
+                <em>
+                  {{ component }}
+                </em>
+              </strong>
+
+              <ul class="fake-list">
+                {% for item in items %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
             {% endfor %}
-          </ul>
+
+          {% else %}
+            <ul class="fake-list">
+              {% for ingredient in ingredients %}
+                <li>{{ ingredient }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
         </div>
         <br />
         <div>
           <h2 class="font-weight-bold text-info">
             Method
           </h2>
-          <ol>
-            {% for step in method %}
-            <li>{{ step }}</li>
-            {% endfor %}
-          </ol>
+          <!--
+            The method could be a list of steps in a basic recipe, or it
+            could be a list of dictionaries with each component having its own
+            set of steps.
+          -->
+        {% if method is mapping %}
+          {% for component, steps in method.items() %}
+            <strong>
+              {{ component }}
+            </strong>
+
+            <ol>
+              {% for step in steps %}
+                <li>{{ step }}</li>
+              {% endfor %}
+            </ol>
+            <br/>
+          {% endfor %}
+
+          {% else %}
+            <ol>
+              {% for step in method %}
+                <li>{{ step }}</li>
+              {% endfor %}
+            </ol>
+        {% endif %}
+
         </div>
       </div>
+
       {% if notes %}
-      <br />
-      <div>
-        <h2 class="font-weight-bold text-info">
-          Notes
-        </h2>
-        {% for note in notes %}
-        <p>{{ note }}</p>
-        {% endfor %}
+        <br />
+        <div>
+          <h2 class="font-weight-bold text-info">
+            Notes
+          </h2>
+          {% for note in notes %}
+          <p>{{ note }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
       </div>
-    </div>
-    {% endif %}
   </body>
+
 </html>
