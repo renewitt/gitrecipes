@@ -6,11 +6,12 @@ creates all the folder and enough example data to run the rest of the commands.
 import pathlib
 import yaml
 
-from gitrecipes import LOGGER
+import gitrecipes.utils as utils
 
 TEMPLATE = {
     'name': None,
     'source': None,
+    'tags': ['tag1', 'tag2'],
     'serves': 0,
     'minutes_prep_time': 0,
     'minutes_cook_time': 0,
@@ -39,8 +40,7 @@ def _write_yaml_file(path, content):
         content,
         sort_keys=False,
         width=85,
-        explicit_start=True)
-    )
+        explicit_start=True))
 
 def new_recipe_template(directory, recipe_name):
     """
@@ -52,21 +52,21 @@ def new_recipe_template(directory, recipe_name):
     # Check if this recipe already exists before creating it
     new_recipe = pathlib.Path.cwd() / directory / f"{recipe_name}.yml"
     if new_recipe.exists():
-        LOGGER.error(f"Recipe {recipe_name} already exists in {directory}.")
+        utils.LOGGER.error(f"Recipe {recipe_name} already exists in {directory}.")
         return 1
 
     _write_yaml_file(new_recipe, TEMPLATE)
-    LOGGER.info(f'Successfully created new recipe {recipe_name}')
+    utils.LOGGER.info(f'Successfully created new recipe {recipe_name}')
 
 def new_index(directory):
     """ Create a new gitrecipes index in the current directory. """
     recipe_index = pathlib.Path.cwd() / directory
     if recipe_index.exists():
-        LOGGER.error(f'Directory `{directory}/` already exists, cannot run setup.')
+        utils.LOGGER.error(f'Directory `{directory}/` already exists, cannot run setup.')
         return 1
 
     recipe_index.mkdir()
-    LOGGER.info(f'Created a new gitrecipes index in {recipe_index}.')
+    utils.LOGGER.info(f'Created a new gitrecipes index in {recipe_index}.')
     _write_example_recipe(recipe_index)
 
 def _write_example_recipe(recipe_index):
@@ -74,6 +74,11 @@ def _write_example_recipe(recipe_index):
     recipe = {
         'name': 'Iced Water',
         'source': ' a family recipe',
+        'tags': [
+            'cold',
+            'side',
+            'ice'
+        ],
         'serves': 2,
         'prep_time': '2 minutes',
         'cook_time': 0,
@@ -105,4 +110,4 @@ def _write_example_recipe(recipe_index):
     }
     recipe_file = pathlib.Path(recipe_index / 'IcedWater.yml')
     _write_yaml_file(recipe_file, recipe)
-    LOGGER.info(f"Run `gitrecipes index` to see all your recipes!")
+    utils.LOGGER.info(f"Run `gitrecipes index` to see all your recipes!")

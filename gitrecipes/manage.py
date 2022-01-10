@@ -1,40 +1,7 @@
 """ Functionality used to manage your recipes. """
-import yaml
-import jinja2
-import pathlib
-import pdfkit
+import collections
 
-import gitrecipes.validate
-
-from gitrecipes import LOGGER
-
-def _load_recipes_from_dir(directory):
-    """ Return a list of all the file contents in this directory that are valid recipes. """
-    recipe_index = pathlib.Path.cwd() / directory
-    recipes = []
-    for path in recipe_index.glob("*"):
-        if path.suffix in ['.yaml', '.yml']:
-
-            try:
-                contents = yaml.safe_load(path.read_text())
-            except yaml.parser.ParserError:
-                LOGGER.error(
-                    "There's something wrong with the YAML syntax in the %s file, skipping.",
-                    path.name)
-
-            if contents is None:
-                LOGGER.error('It looks like %s is an empty file, skipping.', path.name)
-                continue
-
-            if not gitrecipes.validate.validate_recipe(contents):
-                LOGGER.error(
-                    "Recipe is not formatted as expected. Unable to process file %s, skipping.",
-                    path.name)
-                continue
-
-            recipes.append(contents)
-
-    return recipes
+import gitrecipes.utils as utils
 
 def list_all_recipes(directory):
     """
@@ -43,73 +10,49 @@ def list_all_recipes(directory):
     :param directory: The directory to load recipes from
     :returns: Alphabetically sorted list of recipe names
     """
-    recipes = _load_recipes_from_dir(directory)
-    recipe_names = [recipe['name'] for recipe in recipes]
-    return sorted(recipe_names)
+    recipes = utils.load_valid_recipes(directory)
+    # Return the recipe names and the tags as a comma separated string for nice display
+    recipe_data = [(recipe['name'], ', '.join(sorted(recipe['tags']))) for recipe in recipes]
+    return sorted(recipe_data)
 
-def _load_templates():
-    """ Load the Jinja templates used for publishing. """
-    env = jinja2.Environment(
-        loader=jinja2.PackageLoader(__name__, 'static/templates'),
-        autoescape=jinja2.select_autoescape(['html'])
-    )
-    return env
-
-def publish_print(directory):
-    """ Publish all the recipes in this directory as PDFs. """
-    pdfdir = pathlib.Path(f"{directory}/pdf/")
-    pdfdir.mkdir(parents=True, exist_ok=True)
-
-    recipe_data = _load_recipes_from_dir(directory)
-    j2_templates = _load_templates()
-    print_template = j2_templates.get_template('print.html')
-
-    # Create a list of all the recipes we're formatting so they can be easily
-    # navigated through
-    for recipe in recipe_data:
-        LOGGER.info('Working on creating a PDF for %s..', recipe["name"])
-        recipe_filename = f"{recipe['name'].lower().replace(' ', '_')}"
-        rendered_html = print_template.render(**recipe)
-
-        options = {
-            'page-size': 'A4',
-            'margin-top': '0.75in',
-            'margin-right': '0.75in',
-            'margin-bottom': '0.75in',
-            'margin-left': '0.75in',
-            'lowquality': '',
-            'quiet': ''
-        }
-
-        pdfkit.from_string(rendered_html, f'{pdfdir}/{recipe_filename}.pdf', options=options)
-
-def publish_html(directory):
+def search_recipes(directory, search):
     """
-    Publish all the recipes in this directory as html pages with an index page to link them
-    all, creating a browsable static website.
+    Load all recipes and find all the recipes which have a tag or name which matches the
+    supplied search.
+
+    :param directory: The directory to load recipes from
+    :param search: The string to match against recipe tags
+    :returns: Alphabetically sorted list of recipe names
     """
-    htmldir = pathlib.Path(f"{directory}/html/")
-    htmldir.mkdir(parents=True, exist_ok=True)
+    search = search.lower()
 
-    j2_templates = _load_templates()
-    recipe_template = j2_templates.get_template('recipe.html')
-    index_template = j2_templates.get_template('index.html')
+    recipes = utils.load_valid_recipes(directory)
+    matching_recipes = []
+    for recipe in recipes:
+        # tags and recipe names could contain uppercase or lowercase so we need to normalise them before
+        # trying to find matches
+        normalised_tags = [tag.lower() for tag in recipe['tags']]
+        normalised_names = recipe['name'].lower().split()
 
-    recipe_data = _load_recipes_from_dir(directory)
-    recipe_index = []
-    # Create a list of all the recipes we're formatting so they can be easily
-    # navigated through
-    for recipe in recipe_data:
-        # Everything we need to template should already be in the yaml file,
-        # except the static link
-        recipe_filename = f"{recipe['name'].lower().replace(' ', '_')}.html"
-        recipe_index.append({
-            'name': recipe['name'],
-            'source': recipe['source'],
-            'link': recipe_filename
-        })
+        if search in normalised_tags or search in normalised_names:
+            tags = ', '.join(sorted(recipe['tags']))
+            matching_recipes.append((recipe['name'], tags))
 
-        pathlib.Path(htmldir / f"{recipe_filename}").write_text(recipe_template.render(**recipe))
+    return sorted(matching_recipes)
 
-    # Create the index page with links to all the recipes
-    pathlib.Path(htmldir / "index.html").write_text(index_template.render(recipes=recipe_index))
+def get_recipe_tags(directory):
+    """
+    Get all unique recipe tags and the recipes which use them. Used as helper utility for cleaning
+    up. Using defaultdict is a shortcut to ensuring we don't end up with duplicate keys, or clean
+    up the results later.
+    """
+    recipes = utils.load_valid_recipes(directory)
+    master_tags = collections.defaultdict(list)
+    for recipe in recipes:
+        for tag in recipe['tags']:
+            master_tags[tag].append(recipe['name'])
+
+    # Tabulate doesn't handle dictionaries well, so we convert this to a list of tuples
+    # so we can print the output cleanly.
+    normalised_tags = [(k, "\n".join(v)) for k, v in master_tags.items()]
+    return normalised_tags

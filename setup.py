@@ -10,7 +10,8 @@ setup(
         'click',
         'pyyaml',
         'cerberus',
-        'pdfkit'
+        'pdfkit',
+        'tabulate',
     ],
     entry_points={
         'console_scripts': [

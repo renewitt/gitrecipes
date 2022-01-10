@@ -15,6 +15,11 @@ RECIPE_SCHEMA = {
         'type': 'string',
         'nullable': True
     },
+    'tags': {
+        'required': True,
+        'type': 'list',
+        'minlength': 1,
+    },
     'serves': {
         'required': False,
         'type': 'integer',
