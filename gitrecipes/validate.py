@@ -11,6 +11,10 @@ RECIPE_SCHEMA = {
         'type': 'string'
     },
     'source': {
+        'required': True,
+        'type': 'string',
+    },
+    'link': {
         'required': False,
         'type': 'string',
         'nullable': True

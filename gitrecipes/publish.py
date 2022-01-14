@@ -1,6 +1,7 @@
 """ These methods provide support for publishing or exporting recipes. """
 import pathlib
 import jinja2
+import pdfkit
 
 import gitrecipes.utils as utils
 
@@ -21,11 +22,8 @@ def publish_print(directory):
     j2_templates = _load_templates()
     print_template = j2_templates.get_template('print.html')
 
-    # Create a list of all the recipes we're formatting so they can be easily
-    # navigated through
     for recipe in recipe_data:
-        utils.LOGGER.info('Working on creating a PDF for %s..', recipe["name"])
-        recipe_filename = f"{recipe['name'].lower().replace(' ', '_')}"
+        utils.LOGGER.info('Creating a PDF for %s..', recipe["name"])
         rendered_html = print_template.render(**recipe)
 
         options = {
@@ -38,7 +36,7 @@ def publish_print(directory):
             'quiet': ''
         }
 
-        pdfkit.from_string(rendered_html, f'{pdfdir}/{recipe_filename}.pdf', options=options)
+        pdfkit.from_string(rendered_html, f'{pdfdir}/{recipe["filename"]}.pdf', options=options)
 
 def publish_html(directory):
     """
@@ -59,14 +57,14 @@ def publish_html(directory):
     for recipe in recipe_data:
         # Everything we need to template should already be in the yaml file,
         # except the static link
-        recipe_filename = f"{recipe['name'].lower().replace(' ', '_')}.html"
+        recipe_filename = f'{recipe["filename"]}.html'
         recipe_index.append({
             'name': recipe['name'],
             'source': recipe['source'],
             'link': recipe_filename
         })
 
-        pathlib.Path(htmldir / f"{recipe_filename}").write_text(recipe_template.render(**recipe))
+        pathlib.Path(htmldir / recipe_filename).write_text(recipe_template.render(**recipe))
 
     # Create the index page with links to all the recipes
     pathlib.Path(htmldir / "index.html").write_text(index_template.render(recipes=recipe_index))

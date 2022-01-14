@@ -50,6 +50,9 @@ def load_valid_recipes(directory):
                 path.name)
             continue
 
+        # Add the path name for this recipe to the template, so when publishing HTML or PDF files we
+        # we can have consistency in naming
+        contents['filename'] = path.stem
         recipes.append(contents)
 
     return recipes

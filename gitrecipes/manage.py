@@ -11,8 +11,11 @@ def list_all_recipes(directory):
     :returns: Alphabetically sorted list of recipe names
     """
     recipes = utils.load_valid_recipes(directory)
-    # Return the recipe names and the tags as a comma separated string for nice display
-    recipe_data = [(recipe['name'], ', '.join(sorted(recipe['tags']))) for recipe in recipes]
+    # Return the recipe names, source and the tags as a comma separated string for nice display
+    recipe_data = []
+    for recipe in recipes:
+        data = (recipe['name'],  recipe['source'], ', '.join(sorted(recipe['tags'])))
+        recipe_data.append(data)
     return sorted(recipe_data)
 
 def search_recipes(directory, search):
@@ -36,7 +39,7 @@ def search_recipes(directory, search):
 
         if search in normalised_tags or search in normalised_names:
             tags = ', '.join(sorted(recipe['tags']))
-            matching_recipes.append((recipe['name'], tags))
+            matching_recipes.append((recipe['name'], recipe['source'], tags))
 
     return sorted(matching_recipes)
 

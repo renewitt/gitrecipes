@@ -11,6 +11,7 @@ import gitrecipes.utils as utils
 TEMPLATE = {
     'name': None,
     'source': None,
+    'link': None,
     'tags': ['tag1', 'tag2'],
     'serves': 0,
     'minutes_prep_time': 0,

@@ -5,6 +5,7 @@ import tabulate
 
 import gitrecipes.create
 import gitrecipes.manage
+import gitrecipes.publish
 import gitrecipes.validate
 
 GITRECIPES_ENV_DIR = 'GITRECIPES_DIRECTORY'
@@ -46,7 +47,7 @@ def index(directory):
     click.echo('----------')
     click.secho('Here are all your available recipes:\n', fg='green')
 
-    table_headers = ['Recipe Name', 'Tags']
+    table_headers = ['Recipe Name', 'Source', 'Tags']
     click.echo(tabulate.tabulate(recipes, table_headers, tablefmt="simple"))
     click.echo()
 
@@ -60,12 +61,12 @@ def publish(directory, publish_format):
     of your configured `recipes` directory.
     """
     if publish_format == 'pdf':
-        gitrecipes.manage.publish_print(directory)
+        gitrecipes.publish.publish_print(directory)
         click.echo('Published recipes are ready for print in `pdf/`')
         return
 
     if publish_format == 'html':
-        gitrecipes.manage.publish_html(directory)
+        gitrecipes.publish.publish_html(directory)
         click.echo(
             'Your recipes have been published and are ready for browsing in `html/`')
         return
@@ -86,7 +87,7 @@ def search(directory, search):
         return
 
     click.secho(f'Here are all your available recipes for {search}:\n', fg='green')
-    table_headers = ['Recipe Name', 'Tags']
+    table_headers = ['Recipe Name', 'Source', 'Tags']
     click.echo(tabulate.tabulate(recipes, table_headers, tablefmt="simple"))
     click.echo()
 
